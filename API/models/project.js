@@ -13,10 +13,12 @@ const projectSchema = new Schema(
       ref: "Workspace",
       required: true,
     },
-    tasks: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Task",
-    },
+    tasks: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Task",
+      },
+    ],
     status: {
       type: String,
       enum: {
@@ -28,10 +30,14 @@ const projectSchema = new Schema(
     startDate: { type: Date },
     endDate: { type: Date },
     ownerId: {
-      type: Number,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
-    pmId: Number,
+    pmId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
   },
   { timestamps: true }
 );
