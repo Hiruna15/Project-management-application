@@ -12,7 +12,7 @@ const errorHandler = (err, req, res, next) => {
   const message =
     err instanceof AppError ? err.message : "Internal Server Error";
 
-  res.status(status).json({ error: message });
+  res.status(status).json({ error: message, err: err });
 };
 
 export default errorHandler;

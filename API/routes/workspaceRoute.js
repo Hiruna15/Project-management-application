@@ -11,4 +11,9 @@ router.post("/", async (req, res) => {
   res.status(500).json({ error: "error occured" });
 });
 
+router.get("/", async (req, res) => {
+  const workspaces = await WorkspaceModel.find({});
+  res.json({ workspaces });
+});
+
 export default router;
