@@ -1,15 +1,17 @@
 import express from "express";
 import ProjectModel from "../models/project.js";
+import "express-async-errors";
+import AppError from "../errors/AppError.js";
 
 const router = express.Router();
 
-router.post("/", async (req, res) => {
-  if (Object.keys(req.body).length !== 0) {
-    const newProject = await ProjectModel.create(req.body);
-    return res.status(200).json({ data: newProject });
+router.post("/", async (req, res, next) => {
+  if (Object.keys(req.body).length === 0) {
+    return next(new AppError("No data is sent in the request body", 401));
   }
 
-  res.status(400).json({ error: "error occured" });
+  const newProject = await ProjectModel.create(req.body);
+  res.status(200).json({ data: newProject });
 });
 
 router.get("/", async (req, res) => {
