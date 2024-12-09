@@ -90,4 +90,47 @@ const deleteProject = async (req, res, next) => {
   res.status(200).json({ delete: "success", data: deletedProject });
 };
 
-export { createProject, getProjectsInaWorkspace, updateProject, deleteProject };
+const filterProjects = async (req, res, next) => {
+  const { status } = req.query;
+  const validStatuses = ["active", "completed", "archived"];
+
+  if (!status) {
+    return next(new AppError("Status filter option is not provided", 400));
+  }
+
+  const statuses = status
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  if (statuses.length === 0) {
+    return next(new AppError("No valid filter options provided", 400));
+  }
+
+  const invalidStatuses = statuses.filter(
+    (status) => !validStatuses.includes(status)
+  );
+
+  if (invalidStatuses.length > 0) {
+    return next(
+      new AppError(
+        `Invalid statuses provided: ${invalidStatuses.join(", ")}`,
+        400
+      )
+    );
+  }
+
+  const filteredProjects = await ProjectModel.find({
+    status: { $in: statuses },
+  });
+
+  res.status(200).json({ status: "success", data: filteredProjects });
+};
+
+export {
+  createProject,
+  getProjectsInaWorkspace,
+  updateProject,
+  deleteProject,
+  filterProjects,
+};

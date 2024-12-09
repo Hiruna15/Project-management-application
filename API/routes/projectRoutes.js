@@ -4,11 +4,14 @@ import {
   getProjectsInaWorkspace,
   updateProject,
   deleteProject,
+  filterProjects,
 } from "../controllers/projectController.js";
 
 const router = express.Router();
 
 router.post("/", createProject);
+
+router.get("/filter", filterProjects);
 
 router.get("/:workspaceId", getProjectsInaWorkspace);
 
