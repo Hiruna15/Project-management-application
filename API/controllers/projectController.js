@@ -38,10 +38,6 @@ const updateProject = async (req, res, next) => {
     return next(new AppError("No data sent in the request body", 400));
   }
 
-  if (!workspaceId || !projectId) {
-    return next(new AppError("workspaceId and projectId are required", 400));
-  }
-
   if (
     !mongoose.isValidObjectId(workspaceId) ||
     !mongoose.isValidObjectId(projectId)
@@ -67,4 +63,31 @@ const updateProject = async (req, res, next) => {
   res.status(200).json({ data: updatedProject });
 };
 
-export { createProject, getProjectsInaWorkspace, updateProject };
+const deleteProject = async (req, res, next) => {
+  const { workspaceId, projectId } = req.params;
+
+  if (
+    !mongoose.isValidObjectId(workspaceId) ||
+    !mongoose.isValidObjectId(projectId)
+  ) {
+    return next(new AppError("Invalid workspaceId or projectId provided", 400));
+  }
+
+  const deletedProject = await ProjectModel.findOneAndDelete({
+    workspace: workspaceId,
+    _id: projectId,
+  });
+
+  if (!deletedProject) {
+    return next(
+      new AppError(
+        "No projects found for the given workspaceId and projectId",
+        404
+      )
+    );
+  }
+
+  res.status(200).json({ delete: "success", data: deletedProject });
+};
+
+export { createProject, getProjectsInaWorkspace, updateProject, deleteProject };

@@ -11,10 +11,10 @@ const app = express();
 
 app.use(express.json());
 
-app.use("/api/project", projectRoutes);
-app.use("/api/user", userRoutes);
-app.use("/api/workspace", workspaceRoutes);
-app.use("/api/task", taskRoutes);
+app.use("/api/projects", projectRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/workspaces", workspaceRoutes);
+app.use("/api/tasks", taskRoutes);
 
 app.use(errorHandler);
 

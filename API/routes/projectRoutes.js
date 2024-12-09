@@ -3,6 +3,7 @@ import {
   createProject,
   getProjectsInaWorkspace,
   updateProject,
+  deleteProject,
 } from "../controllers/projectController.js";
 
 const router = express.Router();
@@ -11,6 +12,8 @@ router.post("/", createProject);
 
 router.get("/:workspaceId", getProjectsInaWorkspace);
 
-router.patch("/update/:workspaceId/:projectId", updateProject);
+router.patch("/:workspaceId/:projectId", updateProject);
+
+router.delete("/:workspaceId/:projectId", deleteProject);
 
 export default router;
