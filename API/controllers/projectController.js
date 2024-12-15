@@ -127,10 +127,17 @@ const filterProjects = async (req, res, next) => {
   res.status(200).json({ status: "success", data: filteredProjects });
 };
 
+const test = async (req, res) => {
+  console.log(req.user);
+  const projects = await ProjectModel.find({});
+  res.status(200).json({ projects });
+};
+
 export {
   createProject,
   getProjectsInaWorkspace,
   updateProject,
   deleteProject,
   filterProjects,
+  test,
 };

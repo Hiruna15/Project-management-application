@@ -1,40 +1,53 @@
 import mongoose from "mongoose";
-const { Schema } = mongoose;
+import { hashPassword } from "../lib/utils.js";
+import AppError from "../errors/AppError.js";
 
-const passwordRegex =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])[A-Za-z\d@$!%*?&^#-]{8,}$/;
+const { Schema } = mongoose;
 
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-const userSchema = new Schema(
-  {
-    username: {
-      type: String,
-      required: [true, "A username must be provided"],
-      unique: [true, "The username you provided({VALUE}) is already exist"],
-    },
-    email: {
-      type: String,
-      required: [true, "Email must be provided"],
-      unique: [
-        true,
-        "An account is already using this email addresss you provided({VALUE})",
-      ],
-      match: [emailRegex, "Invalid Email"],
-    },
-    password: {
-      type: String,
-      required: true,
-      min: [8, "Password must include at least 8 characters, you got {VALUE}"],
-      max: [50, "Password cannot have more than 50 characters"],
-      match: [passwordRegex, "Not a strong password"],
-    },
-    workspaces: [{ type: mongoose.Schema.Types.ObjectId, ref: "Workspace" }],
-    projects: [{ type: mongoose.Schema.Types.ObjectId, ref: "Project" }],
+const UserSchema = new Schema({
+  username: {
+    type: String,
+    required: [true, "username must be provided"],
+    unique: [true, "username is already in use"],
+    minLength: [4, "Username could not contain below 4 characters"],
+    maxLength: [15, "Username cannot be more than 15 characters"],
   },
-  { timestamps: true }
-);
+  email: {
+    type: String,
+    required: [true, "email must be provided"],
+    unique: [true, "The email you entered alredy has an account"],
+    lowercase: true,
+    match: [emailRegex, "Enter a valid email address"],
+  },
+  hash: {
+    type: String,
+    required: [true, "Password must be provided"],
+  },
+  salt: {
+    type: String,
+  },
+  date: { type: Date, default: Date.now },
+  workspaces: [{ type: mongoose.Schema.Types.ObjectId, ref: "Workspace" }],
+  projects: [{ type: mongoose.Schema.Types.ObjectId, ref: "Project" }],
+});
 
-const UserModel = mongoose.model("User", userSchema);
+UserSchema.pre("save", function () {
+  const passwordRegex =
+    /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+
+  if (this.hash.length < 8 || !passwordRegex.test(this.hash)) {
+    throw new AppError(
+      "password should contain minimum of 8 characters and should consist of all type of characters"
+    );
+  }
+
+  const { hash, salt } = hashPassword(this.hash);
+  this.hash = hash;
+  this.salt = salt;
+});
+
+const UserModel = mongoose.model("User", UserSchema);
 
 export default UserModel;
